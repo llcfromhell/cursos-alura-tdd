@@ -33,7 +33,28 @@ public class AvaliadorTest {
         Assert.assertEquals(menorEsperado, leiloeiro.getMenorLance(), 0);
         
         Assert.assertEquals(mediaEsperada, leiloeiro.getMediaLances(), 0.01);
-                
+
+    }
+
+    @Test
+    public void deveEntenderLancesEmOrdemCrescenteComOutrosValores() {
+
+        Usuario joao = new Usuario("Joao");
+        Usuario jose = new Usuario("José");
+        Usuario maria = new Usuario("Maria");
+
+        Leilao leilao = new Leilao("Playstation 3 Novo");
+
+        leilao.propoe(new Lance(maria,1000.0));
+        leilao.propoe(new Lance(joao,2000.0));
+        leilao.propoe(new Lance(jose,3000.0));
+
+        Avaliador leiloeiro = new Avaliador();
+        leiloeiro.avalia(leilao);
+
+        Assert.assertEquals(3000, leiloeiro.getMaiorLance(), 0.0001);
+        Assert.assertEquals(1000, leiloeiro.getMenorLance(), 0.0001);
+
     }
     
     
