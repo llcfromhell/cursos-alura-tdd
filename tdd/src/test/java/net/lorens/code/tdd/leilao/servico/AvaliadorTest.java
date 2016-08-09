@@ -1,170 +1,186 @@
 package net.lorens.code.tdd.leilao.servico;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.ArrayList;
-
-import net.lorens.code.tdd.leilao.dominio.*;
+import net.lorens.code.tdd.builder.CriadorDeLeilao;
+import net.lorens.code.tdd.leilao.dominio.Lance;
+import net.lorens.code.tdd.leilao.dominio.Leilao;
+import net.lorens.code.tdd.leilao.dominio.Usuario;
+import net.lorens.code.tdd.matchers.TemUmLanceMatcher;
 
 public class AvaliadorTest {
 
-    Usuario joao = new Usuario("Joao");
-    Usuario jose = new Usuario("José");
-    Usuario maria = new Usuario("Maria");
-    
-    @Test
-    public void validaResultadosEmQualquerOrdem() {
-        
-        double maiorEsperado = 400;
-        double menorEsperado = 250;
+	Usuario joao = new Usuario("Joao");
+	Usuario jose = new Usuario("José");
+	Usuario maria = new Usuario("Maria");
+	private Avaliador leiloeiro;
 
-        double mediaEsperada = 316.66;
-        
-        Leilao leilao = new Leilao("GTX 1060");
-        
-        leilao.propoe(new Lance(maria, 400));
-        leilao.propoe(new Lance(jose, 250));
-        leilao.propoe(new Lance(joao, 300));
-        
-        Avaliador leiloeiro = new Avaliador();
-        leiloeiro.avalia(leilao);
-        
-        assertEquals(maiorEsperado, leiloeiro.getMaiorLance(), 0);
-        
-        assertEquals(menorEsperado, leiloeiro.getMenorLance(), 0);
-        
-        assertEquals(mediaEsperada, leiloeiro.getMediaLances(), 0.01);
-                
-    }
+	@BeforeClass
+	public static void testandoBeforeClass() {
+		System.out.println("before class");
+	}
 
-    @Test
-    public void validaResultadosCom1LanceApenas() {
-        
-        double maiorEsperado = 200;
-        double menorEsperado = 200;
-        
-        double mediaEsperada = 200;
-        
-        Leilao leilao = new Leilao("GTX 1060");
-        
-        leilao.propoe(new Lance(maria, menorEsperado));
-        
-        Avaliador leiloeiro = new Avaliador();
-        leiloeiro.avalia(leilao);
-        
-        assertEquals(maiorEsperado, leiloeiro.getMaiorLance(), 0);
-        
-        assertEquals(menorEsperado, leiloeiro.getMenorLance(), 0);
-        
-        assertEquals(mediaEsperada, leiloeiro.getMediaLances(), 0.01);
-                
-    }
-    
+	@AfterClass
+	public static void testandoAfterClass() {
+		System.out.println("after class");
+	}
 
-    @Test
-    public void validaMaiorMenorEmOrdemDecrescente() {
-        
-        double maiorEsperado = 400;
-        double menorEsperado = 250;
+	@Before
+	public void criaAvaliador() {
+		System.out.println("inicializando teste!");
+		leiloeiro = new Avaliador();
+	}
 
-        double mediaEsperada = 316.66;
+	@After
+	public void finaliza() {
+		System.out.println("fim");
+	}
 
-        Leilao leilao = new Leilao("GTX 1060");
-        
-        leilao.propoe(new Lance(maria, 400));
-        leilao.propoe(new Lance(joao, 300));
-        leilao.propoe(new Lance(jose, 250));
-        
-        Avaliador leiloeiro = new Avaliador();
-        leiloeiro.avalia(leilao);
-        
-        assertEquals(maiorEsperado, leiloeiro.getMaiorLance(), 0);
-        
-        assertEquals(mediaEsperada, leiloeiro.getMediaLances(), 0.01);
+	@Test
+	public void validaResultadosEmQualquerOrdem() {
 
-    }
+		double maiorEsperado = 400;
+		double menorEsperado = 250;
 
-    @Test
-    public void deveEntenderLancesEmOrdemCrescenteComOutrosValores() {
+		double mediaEsperada = 316.66;
 
-        Usuario joao = new Usuario("Joao");
-        Usuario jose = new Usuario("José");
-        Usuario maria = new Usuario("Maria");
+		Leilao leilao = new CriadorDeLeilao().para("GTX 1060").lance(maria, 400).lance(jose, 250).lance(joao, 300)
+				.constroi();
 
-        Leilao leilao = new Leilao("Playstation 3 Novo");
+		leiloeiro.avalia(leilao);
 
-        leilao.propoe(new Lance(maria,1000.0));
-        leilao.propoe(new Lance(joao,2000.0));
-        leilao.propoe(new Lance(jose,3000.0));
+		assertEquals(maiorEsperado, leiloeiro.getMaiorLance(), 0);
 
-        Avaliador leiloeiro = new Avaliador();
-        leiloeiro.avalia(leilao);
+		assertEquals(menorEsperado, leiloeiro.getMenorLance(), 0);
 
-        Assert.assertEquals(3000, leiloeiro.getMaiorLance(), 0.0001);
-        Assert.assertEquals(1000, leiloeiro.getMenorLance(), 0.0001);
-                
-    }
+		assertEquals(mediaEsperada, leiloeiro.getMediaLances(), 0.01);
 
-    @Test
-    public void valida3MaioresDe5Lances() {
-        
-        List<Double> maiorEsperados = new ArrayList<Double>(){{ add(500.0); add(400.0); add(300.0); }};
+	}
 
-        Leilao leilao = new Leilao("GTX 1060");
-        
-        leilao.propoe(new Lance(maria, 400));
-        leilao.propoe(new Lance(joao, 300));
-        leilao.propoe(new Lance(joao, 289));
-        leilao.propoe(new Lance(joao, 500));
-        leilao.propoe(new Lance(joao, 255));
-        
-        Avaliador leiloeiro = new Avaliador();
+	@Test
+	public void validaResultadosCom1LanceApenas() {
 
-        leiloeiro.avalia(leilao);
+		double maiorEsperado = 200;
+		double menorEsperado = 200;
 
+		double mediaEsperada = 200;
 
-        for (int i = 0; i < 3; i++) {
+		Leilao leilao = new CriadorDeLeilao().para("GTX 1060").lance(maria, menorEsperado).constroi();
 
-            assertEquals(maiorEsperados.get(i), leiloeiro.getTresMaiores().get(i).getValor(), 0.01);
+		leiloeiro.avalia(leilao);
 
-        }
-        
-                
-    }
+		assertEquals(maiorEsperado, leiloeiro.getMaiorLance(), 0);
 
-    @Test
-    public void valida3MaioresDe2Lances() {
+		assertEquals(menorEsperado, leiloeiro.getMenorLance(), 0);
 
-        Leilao leilao = new Leilao("GTX 1060");
-        
-        leilao.propoe(new Lance(maria, 400));
-        leilao.propoe(new Lance(joao, 500));
+		assertEquals(mediaEsperada, leiloeiro.getMediaLances(), 0.01);
 
-        
-        Avaliador leiloeiro = new Avaliador();
+	}
 
-        leiloeiro.avalia(leilao);
+	@Test
+	public void validaMaiorMenorEmOrdemDecrescente() {
 
-        assertEquals(leiloeiro.getTresMaiores().size(), 2);
-                
-    }
+		double maiorEsperado = 400;
+		double menorEsperado = 250;
 
-    @Test
-    public void valida3MaioresDeLeilaoVazio() {
+		double mediaEsperada = 316.66;
 
-        Leilao leilao = new Leilao("GTX 1060");
-        
-        Avaliador leiloeiro = new Avaliador();
+		Leilao leilao = new CriadorDeLeilao().para("GTX 1060").lance(maria, 400).lance(joao, 300).lance(jose, 250)
+				.constroi();
 
-        leiloeiro.avalia(leilao);
+		leiloeiro.avalia(leilao);
 
-        assertTrue(leiloeiro.getTresMaiores().isEmpty());
-                
-    }
-    
-    
+		assertEquals(maiorEsperado, leiloeiro.getMaiorLance(), 0);
+
+		assertEquals(mediaEsperada, leiloeiro.getMediaLances(), 0.01);
+
+	}
+
+	@Test
+	public void deveEntenderLancesEmOrdemCrescenteComOutrosValores() {
+
+		Leilao leilao = new CriadorDeLeilao().para("GTX 1060").lance(maria, 1000).lance(joao, 2000).lance(jose, 3000)
+				.constroi();
+
+		leiloeiro.avalia(leilao);
+
+		Assert.assertEquals(3000, leiloeiro.getMaiorLance(), 0.0001);
+		Assert.assertEquals(1000, leiloeiro.getMenorLance(), 0.0001);
+
+	}
+
+	@Test
+	public void valida3MaioresDe5Lances() {
+
+		List<Double> maiorEsperados = new ArrayList<Double>() {
+			{
+				add(500.0);
+				add(400.0);
+				add(300.0);
+			}
+		};
+
+		Leilao leilao = new CriadorDeLeilao().para("GTX 1060").lance(maria, 400).lance(joao, 300).lance(maria, 289)
+				.lance(joao, 500).lance(maria, 255).constroi();
+
+		leiloeiro.avalia(leilao);
+
+		assertThat(leiloeiro.getTresMaiores(), hasItems(
+				new Lance(maria, 400),
+				new Lance(joao, 300),
+				new Lance(joao, 500)));
+		
+
+	}
+
+	@Test
+	public void valida3MaioresDe2Lances() {
+
+		Leilao leilao = new CriadorDeLeilao().para("GTX 1060").lance(maria, 400).lance(joao, 500).constroi();
+
+		leiloeiro.avalia(leilao);
+
+		assertThat(leiloeiro.getTresMaiores(), hasSize(2));
+
+	}
+
+	@Test(expected=RuntimeException.class)
+	public void valida3MaioresDeLeilaoVazioEsperaExcecao() {
+
+		Leilao leilao = new CriadorDeLeilao().para("GTX 1060").constroi();
+
+		leiloeiro.avalia(leilao);
+
+		assertTrue(leiloeiro.getTresMaiores().isEmpty());
+
+	}
+	
+	@Test
+	public void verificaSeLeilaoTemUmLance() {
+
+		Leilao leilao = new CriadorDeLeilao().para("GTX 1060")
+				//.lance(maria, 200)
+				.constroi();
+
+		assertThat(leilao, TemUmLanceMatcher.temUmLance(leilao));
+		
+
+	}
+
 }

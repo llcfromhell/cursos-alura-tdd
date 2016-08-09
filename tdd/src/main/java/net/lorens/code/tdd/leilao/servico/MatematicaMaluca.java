@@ -2,7 +2,7 @@ package net.lorens.code.tdd.leilao.servico;
 
 public class MatematicaMaluca {
 
-    public int contaMaluca(int numero) {
+    public long contaMaluca(long numero) {
         if (numero > 30)
             return numero * 4;
         else if (numero > 10)
